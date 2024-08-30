@@ -1,0 +1,135 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+}
+
+.App-main {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.control-panel {
+  padding: 20px;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.scale-control {
+  display: flex;
+  align-items: center;
+}
+
+.scale-control input[type="range"] {
+  width: 100px;
+  margin-right: 10px;
+}
+
+.control-panel input[type="file"] {
+  margin-right: 20px;
+}
+
+.control-panel button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.control-panel button:hover {
+  background-color: #45a049;
+}
+
+.pdf-container {
+  flex-grow: 1;
+  overflow: auto;
+  position: relative;
+  width: 100%; /* 确保容器占满可用宽度 */
+  display: flex;
+  justify-content: center; /* 水平居中内容 */
+}
+
+.pdf-content {
+  position: relative;
+  display: inline-block;
+  max-width: 100%; /* 确保内容不超过容器宽度 */
+  cursor: crosshair; /* 添加十字光标样式 */
+}
+
+.react-pdf__Document {
+  display: inline-block;
+  line-height: 1;
+}
+
+.react-pdf__Page {
+  margin-bottom: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 添加阴影以更好地区分页面 */
+}
+
+.react-pdf__Page canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
