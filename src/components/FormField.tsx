@@ -55,10 +55,6 @@ const FormField: React.FC<FormFieldProps> = ({
     onEdit();
   };
 
-  const minSize = 40; // 最小大小，单位为像素
-  const scaledWidth = Math.max(width * scale, minSize);
-  const scaledHeight = Math.max(height * scale, minSize);
-
   return (
     <div
       className={`form-field ${isEditing ? "editing" : ""} ${
@@ -82,7 +78,7 @@ const FormField: React.FC<FormFieldProps> = ({
           type="text"
           value={localKey}
           onChange={handleKeyChange}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress}
           placeholder="Enter field key"
           style={{ fontSize: `${Math.max(12, 12 / scale)}px` }}
         />

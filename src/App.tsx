@@ -1,4 +1,4 @@
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts, transparent } from "pdf-lib";
 import { useState, useRef, useCallback } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -93,11 +93,11 @@ function App() {
           key: "",
         };
         setFormFields((prevFields) => [...prevFields, newField]);
-        setSelectedField(formFields.length); // 设置新创建的字段为选中状态
+        setSelectedField(formFields.length);
       }
       setSelectionBox(null);
       setStartPoint(null);
-      setIsSelectingDisabled(false); // 重新启用文本选择
+      setIsSelectingDisabled(false);
     },
     [isDrawing, startPoint, scale, formFields.length]
   );
@@ -141,11 +141,11 @@ function App() {
       const textField = form.createTextField(field.key);
       textField.addToPage(page, {
         x: field.x,
-        y: height - field.y - field.height, // PDF 坐标系从底部开始，需要调整 y 坐标
+        y: height - field.y - field.height, // PDF 坐标系从底部开始需要调整 y 坐标
         width: field.width,
         height: field.height,
-        borderWidth: 1,
-        borderColor: rgb(0, 0, 0),
+        borderWidth: 0, // 将边框宽度设置为 0
+        backgroundColor: rgb(1, 1, 1), // 使用 rgb 函数创建透明颜色
       });
 
       // 设置字段属性
