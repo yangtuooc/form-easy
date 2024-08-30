@@ -28,11 +28,13 @@ function App() {
   const [selectedField, setSelectedField] = useState<number | null>(null);
   const [isSelectingDisabled, setIsSelectingDisabled] = useState(false);
   const pdfContentRef = useRef<HTMLDivElement>(null);
+  const [fileName, setFileName] = useState<string>("No file chosen");
 
   const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setPdfFile(file);
+      setFileName(file.name);
     }
   };
 
@@ -173,7 +175,11 @@ function App() {
       </header>
       <main className="App-main">
         <div className="control-panel">
-          <input type="file" onChange={onFileChange} accept=".pdf" />
+          <div className="file-input-wrapper">
+            <button className="custom-file-button">Choose File</button>
+            <input type="file" onChange={onFileChange} accept=".pdf" />
+          </div>
+          <span className="file-name-display">{fileName}</span>
           <div className="scale-control">
             <input
               type="range"
