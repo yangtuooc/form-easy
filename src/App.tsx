@@ -19,10 +19,16 @@ import {
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
+// 创建主题 context 并导出
+export const ThemeContext = React.createContext({
+  theme: "system" as "light" | "dark" | "system",
+  setTheme: (theme: "light" | "dark" | "system") => {},
+});
+
 const PDFPlaceholder = () => (
   <div className="flex flex-col items-center justify-center w-full h-full bg-muted text-muted-foreground rounded-lg border-2 border-dashed">
     <FileText className="w-16 h-16 mb-4" />
-    <p className="text-lg font-medium">Select a PDF to get started</p>
+    <p className="text-lg font-medium">选择一个 PDF 文件开始</p>
   </div>
 );
 
@@ -106,7 +112,7 @@ function App() {
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
-    setCurrentPage(1);
+    setCurrentPage(1); // 确保在文档加载成功后将当前页设置为第一页
   };
 
   const handleSaveAndExport = () => {
@@ -117,67 +123,78 @@ function App() {
     saveAndExportPDF(pdfFile, formFields);
   };
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
-  };
+  // 应用主题
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+      root.classList.add(systemTheme);
+    } else {
+      root.classList.add(theme);
+    }
+  }, [theme]);
 
   return (
-    <div className="bg-background h-screen flex flex-col">
-      <header className="flex items-center justify-between p-4 border-b">
-        <h1 className="text-2xl font-bold">PDF Form Editor</h1>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              {theme === "light" ? (
-                <Sun className="h-[1.2rem] w-[1.2rem]" />
-              ) : theme === "dark" ? (
-                <Moon className="h-[1.2rem] w-[1.2rem]" />
-              ) : (
-                <Laptop className="h-[1.2rem] w-[1.2rem]" />
-              )}
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setTheme("light")}>
-              <Sun className="mr-2 h-4 w-4" />
-              <span>Light</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
-              <Moon className="mr-2 h-4 w-4" />
-              <span>Dark</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("system")}>
-              <Laptop className="mr-2 h-4 w-4" />
-              <span>System</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </header>
-      <div className="flex flex-1 overflow-hidden">
-        <aside className="w-80 flex-shrink-0 border-r flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
-            <ControlPanel
-              fileName={fileName}
-              scale={scale}
-              setScale={setScale}
-              onFileChange={onFileChange}
-              onSaveAndExport={handleSaveAndExport}
-              onClearFields={clearAllFields}
-              hasFields={formFields.length > 0}
-            />
-            <Separator className="my-4" />
-            <FieldsList
-              fields={formFields}
-              onEdit={handleFieldEdit}
-              onDelete={handleFieldDelete}
-            />
-          </div>
-        </aside>
-        <main className="flex-1 overflow-hidden flex flex-col">
-          <div className="flex-1 overflow-auto">
-            <div className="min-w-full inline-block p-4">
-              <div className="relative">
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      <div className="bg-background h-screen flex flex-col">
+        <header className="flex items-center justify-between p-4 border-b">
+          <h1 className="text-2xl font-bold">PDF Form Editor</h1>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                {theme === "light" ? (
+                  <Sun className="h-[1.2rem] w-[1.2rem]" />
+                ) : theme === "dark" ? (
+                  <Moon className="h-[1.2rem] w-[1.2rem]" />
+                ) : (
+                  <Laptop className="h-[1.2rem] w-[1.2rem]" />
+                )}
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                <Sun className="mr-2 h-4 w-4" />
+                <span>Light</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <Moon className="mr-2 h-4 w-4" />
+                <span>Dark</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                <Laptop className="mr-2 h-4 w-4" />
+                <span>System</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+        <div className="flex flex-1 overflow-hidden">
+          <aside className="w-80 flex-shrink-0 border-r flex flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto">
+              <ControlPanel
+                fileName={fileName}
+                scale={scale}
+                setScale={setScale}
+                onFileChange={onFileChange}
+                onSaveAndExport={handleSaveAndExport}
+                onClearFields={clearAllFields}
+                hasFields={formFields.length > 0}
+              />
+              <Separator className="my-4" />
+              <FieldsList
+                fields={formFields}
+                onEdit={handleFieldEdit}
+                onDelete={handleFieldDelete}
+              />
+            </div>
+          </aside>
+          <main className="flex-1 overflow-hidden flex flex-col">
+            <div className="flex-1 overflow-auto">
+              <div className="min-w-full inline-block p-4">
                 <div
                   ref={pdfContentRef}
                   className={`pdf-content relative cursor-crosshair ${
@@ -241,17 +258,17 @@ function App() {
                 </div>
               </div>
             </div>
-          </div>
-          {pdfFile && (
-            <div className="flex justify-center items-center p-2 border-t">
-              <span className="text-sm">
-                第 {currentPage} 页，共 {numPages} 页
-              </span>
-            </div>
-          )}
-        </main>
+            {pdfFile && (
+              <div className="flex justify-center items-center p-2 border-t">
+                <span className="text-sm">
+                  第 {currentPage} 页，共 {numPages} 页
+                </span>
+              </div>
+            )}
+          </main>
+        </div>
       </div>
-    </div>
+    </ThemeContext.Provider>
   );
 }
 
