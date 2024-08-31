@@ -5,7 +5,7 @@ import "react-pdf/dist/esm/Page/TextLayer.css";
 import "./App.css";
 import FormField from "./components/FormField";
 import { useFormFields } from "./hooks/useFormFields";
-import { handleSaveAndExport } from "./utils/pdfUtils";
+import { handleSaveAndExport as saveAndExportPDF } from "./utils/pdfUtils"; // 重命名导入的函数
 import ControlPanel from "./components/ControlPanel";
 import FieldsList from "./components/FieldsList";
 
@@ -73,7 +73,7 @@ function App() {
       alert("Please add at least one form field before exporting.");
       return;
     }
-    handleSaveAndExport(pdfFile, formFields);
+    saveAndExportPDF(pdfFile, formFields); // 使用重命名后的函数
   };
 
   return (
