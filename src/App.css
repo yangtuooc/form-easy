@@ -1,8 +1,15 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  height: 100%;
+  width: 100%;
 }
 
 .logo {
@@ -42,131 +49,101 @@
 }
 
 .App {
-  text-align: center;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
+  width: 100%;
 }
 
 .App-header {
   background-color: #282c34;
-  padding: 20px;
+  padding: 8px 16px; /* 减小上下内边距 */
   color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 48px; /* 设置一个固定高度 */
+}
+
+.App-header h1 {
+  font-size: 1.2rem; /* 减小标题字体大小 */
+  margin: 0; /* 移除默认边距 */
 }
 
 .App-main {
   display: flex;
-  flex-direction: column;
   flex-grow: 1;
   overflow: hidden;
+  position: relative;
 }
 
-.control-panel {
-  padding: 20px;
+.sidebar {
+  width: 300px;
   background-color: #f0f0f0;
+  overflow-y: auto;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  transition: transform 0.3s ease-in-out;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 10;
 }
 
-.scale-control {
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.pdf-editor {
+  flex-grow: 1;
+  overflow: auto;
   display: flex;
-  align-items: center;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: #e0e0e0;
+  transition: margin-left 0.3s ease-in-out;
+  margin-left: 300px;
 }
 
-.scale-control input[type="range"] {
-  width: 100px;
-  margin-right: 10px;
-}
-
-.control-panel input[type="file"] {
-  margin-right: 20px;
-}
-
-.control-panel button {
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.control-panel button:hover {
-  background-color: #45a049;
+.pdf-editor.full-width {
+  margin-left: 0;
 }
 
 .pdf-container {
-  flex-grow: 1;
-  overflow: auto;
-  position: relative;
-  width: 100%; /* 确保容器占满可用宽度 */
-  display: flex;
-  justify-content: center; /* 水平居中内容 */
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  min-height: 100%;
 }
 
 .pdf-content {
   position: relative;
-  display: inline-block;
-  max-width: 100%; /* 确保内容不超过容器宽度 */
-  cursor: crosshair; /* 添加十字光标样式 */
+  cursor: crosshair;
 }
 
-.react-pdf__Document {
-  display: inline-block;
-  line-height: 1;
-}
-
-.react-pdf__Page {
-  margin-bottom: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* 添加阴影以更好地区分页面 */
-}
-
-.react-pdf__Page canvas {
-  max-width: 100%;
-  height: auto !important;
-}
-
-.no-select {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
-
-.file-input-wrapper {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-}
-
-.file-input-wrapper input[type="file"] {
-  font-size: 100px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.file-input-wrapper .custom-file-button {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #1890ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-
-.file-input-wrapper .custom-file-button:hover {
-  background-color: #40a9ff;
-}
-
-.file-name-display {
-  margin-left: 10px;
-  font-size: 14px;
+.pdf-placeholder {
+  width: 595px;
+  height: 842px;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
   color: #666;
+  border: 1px solid #ddd;
 }
+
+.toggle-sidebar-btn {
+  background-color: #4caf50;
+  border: none;
+  color: white;
+  padding: 6px 12px; /* 减小按钮内边距 */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 0.9rem; /* 减小按钮字体大小 */
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+/* 移除了一些不必要的样式 */

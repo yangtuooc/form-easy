@@ -1,34 +1,43 @@
-import { PDFDocument, rgb, StandardFonts, transparent } from "pdf-lib";
-import { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import "./App.css";
 import FormField from "./components/FormField";
+import { useFormFields } from "./hooks/useFormFields";
+import { handleSaveAndExport } from "./utils/pdfUtils";
+import ControlPanel from "./components/ControlPanel";
+import FieldsList from "./components/FieldsList";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+const PDFPlaceholder = () => (
+  <div className="pdf-placeholder">
+    <p>Please select a PDF file</p>
+  </div>
+);
 
 function App() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
-  const [formFields, setFormFields] = useState<
-    Array<{ x: number; y: number; width: number; height: number; key: string }>
-  >([]);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
-    null
-  );
   const [scale, setScale] = useState(1.5);
-  const [selectionBox, setSelectionBox] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const [selectedField, setSelectedField] = useState<number | null>(null);
-  const [isSelectingDisabled, setIsSelectingDisabled] = useState(false);
-  const pdfContentRef = useRef<HTMLDivElement>(null);
   const [fileName, setFileName] = useState<string>("No file chosen");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const pdfContentRef = useRef<HTMLDivElement>(null);
+
+  const {
+    formFields,
+    selectionBox,
+    isSelectingDisabled,
+    selectedField,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleKeySet,
+    handleFieldDelete,
+    handleFieldEdit,
+    clearAllFields,
+  } = useFormFields(scale, pdfContentRef);
 
   const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -42,205 +51,91 @@ function App() {
     setNumPages(numPages);
   };
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if (!pdfContentRef.current) return;
-      const rect = pdfContentRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / scale;
-      const y = (e.clientY - rect.top) / scale;
-      setIsDrawing(true);
-      setStartPoint({ x, y });
-      setSelectionBox({ x, y, width: 0, height: 0 });
-      setSelectedField(null);
-      setIsSelectingDisabled(true); // 禁用文本选择
-      e.preventDefault(); // 阻止默认的选择行为
-    },
-    [scale]
-  );
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!isDrawing || !startPoint || !pdfContentRef.current) return;
-      const rect = pdfContentRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / scale;
-      const y = (e.clientY - rect.top) / scale;
-      setSelectionBox({
-        x: Math.min(startPoint.x, x),
-        y: Math.min(startPoint.y, y),
-        width: Math.abs(x - startPoint.x),
-        height: Math.abs(y - startPoint.y),
-      });
-    },
-    [isDrawing, startPoint, scale]
-  );
-
-  const handleMouseUp = useCallback(
-    (e: React.MouseEvent) => {
-      if (!isDrawing || !startPoint || !pdfContentRef.current) return;
-      setIsDrawing(false);
-      const rect = pdfContentRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / scale;
-      const y = (e.clientY - rect.top) / scale;
-      const width = Math.abs(x - startPoint.x);
-      const height = Math.abs(y - startPoint.y);
-
-      if (width > 10 / scale && height > 10 / scale) {
-        const newField = {
-          x: Math.min(startPoint.x, x),
-          y: Math.min(startPoint.y, y),
-          width: width,
-          height: height,
-          key: "",
-        };
-        setFormFields((prevFields) => [...prevFields, newField]);
-        setSelectedField(formFields.length);
-      }
-      setSelectionBox(null);
-      setStartPoint(null);
-      setIsSelectingDisabled(false);
-    },
-    [isDrawing, startPoint, scale, formFields.length]
-  );
-
-  const handleKeySet = (index: number, key: string) => {
-    console.log("handleKeySet called with index:", index, "and key:", key);
-    setFormFields((prevFields) => {
-      const updatedFields = prevFields.map((field, i) =>
-        i === index ? { ...field, key } : field
-      );
-      console.log("Updated fields:", updatedFields);
-      return updatedFields;
-    });
-    setSelectedField(null); // 关闭编辑模式
-  };
-
-  const handleFieldDelete = (index: number) => {
-    const updatedFields = formFields.filter((_, i) => i !== index);
-    setFormFields(updatedFields);
-    setSelectedField(null);
-  };
-
-  const handleFieldEdit = (index: number) => {
-    setSelectedField(index);
-  };
-
-  const handleSaveAndExport = async () => {
-    if (!pdfFile) return;
-    const pdfBytes = await pdfFile.arrayBuffer();
-    const pdfDoc = await PDFDocument.load(pdfBytes);
-    const form = pdfDoc.getForm();
-    const pages = pdfDoc.getPages();
-
-    // 加载默认字体
-    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-    formFields.forEach((field) => {
-      const page = pages[0]; // 假设所有字段都在第一页，如果不是，需要确定正确的页面
-      const { width, height } = page.getSize();
-
-      const textField = form.createTextField(field.key);
-      textField.addToPage(page, {
-        x: field.x,
-        y: height - field.y - field.height, // PDF 坐标系从底部开始需要调整 y 坐标
-        width: field.width,
-        height: field.height,
-        borderWidth: 0, // 将边框宽度设置为 0
-        backgroundColor: rgb(1, 1, 1), // 使用 rgb 函数创建透明颜色
-      });
-
-      // 设置字段属性
-      textField.setFontSize(12);
-      textField.setText(field.key); // 设置表单域的默认文本为 key
-
-      // 使用 updateAppearances 方法来设置默认外观
-      textField.updateAppearances(helveticaFont);
-    });
-
-    const pdfBytesWithForm = await pdfDoc.save();
-    const blob = new Blob([pdfBytesWithForm], { type: "application/pdf" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "form_with_fields.pdf";
-    link.click();
-  };
-
-  const handleScaleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setScale(parseFloat(event.target.value));
+  const handleSaveAndExport = () => {
+    if (formFields.length === 0) {
+      alert("Please add at least one form field before exporting.");
+      return;
+    }
+    handleSaveAndExport(pdfFile, formFields);
   };
 
   return (
     <div className={`App ${isSelectingDisabled ? "no-select" : ""}`}>
       <header className="App-header">
         <h1>PDF Form Editor</h1>
+        <button
+          className="toggle-sidebar-btn"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          {isSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
+        </button>
       </header>
       <main className="App-main">
-        <div className="control-panel">
-          <div className="file-input-wrapper">
-            <button className="custom-file-button">Choose File</button>
-            <input type="file" onChange={onFileChange} accept=".pdf" />
-          </div>
-          <span className="file-name-display">{fileName}</span>
-          <div className="scale-control">
-            <input
-              type="range"
-              min="0.5"
-              max="3"
-              step="0.1"
-              value={scale}
-              onChange={handleScaleChange}
-            />
-            <span>{scale.toFixed(1)}x</span>
-          </div>
-          <button onClick={handleSaveAndExport}>Save and Export</button>
+        <div className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
+          <ControlPanel
+            fileName={fileName}
+            scale={scale}
+            setScale={setScale}
+            onFileChange={onFileChange}
+            onSaveAndExport={handleSaveAndExport}
+            onClearFields={clearAllFields}
+            hasFields={formFields.length > 0}
+          />
+          <FieldsList
+            fields={formFields}
+            onEdit={handleFieldEdit}
+            onDelete={handleFieldDelete}
+          />
         </div>
-        <div className="pdf-container">
-          <div
-            ref={pdfContentRef}
-            className="pdf-content"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-          >
-            {pdfFile && (
-              <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
-                {Array.from(new Array(numPages), (el, index) => (
-                  <Page
-                    key={`page_${index + 1}`}
-                    pageNumber={index + 1}
-                    scale={scale}
-                    renderTextLayer={true}
-                    renderAnnotationLayer={true}
-                  />
-                ))}
-              </Document>
-            )}
-            {selectionBox && (
-              <div
-                className="selection-box"
-                style={{
-                  position: "absolute",
-                  left: `${selectionBox.x * scale}px`,
-                  top: `${selectionBox.y * scale}px`,
-                  width: `${selectionBox.width * scale}px`,
-                  height: `${selectionBox.height * scale}px`,
-                  border: "2px dashed blue",
-                  backgroundColor: "rgba(0, 0, 255, 0.1)",
-                  pointerEvents: "none",
-                }}
-              />
-            )}
-            {formFields.map((field, index) => (
-              <FormField
-                key={`form-field-${index}`}
-                {...field}
-                fieldKey={field.key} // 将 'key' 重命名为 'fieldKey'
-                onKeySet={(newKey) => handleKeySet(index, newKey)}
-                onDelete={() => handleFieldDelete(index)}
-                onEdit={() => handleFieldEdit(index)}
-                scale={scale}
-                isEditing={selectedField === index}
-              />
-            ))}
+        <div className={`pdf-editor ${isSidebarOpen ? "" : "full-width"}`}>
+          <div className="pdf-container">
+            <div
+              ref={pdfContentRef}
+              className="pdf-content"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+            >
+              {pdfFile ? (
+                <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
+                  {Array.from(new Array(numPages), (el, index) => (
+                    <Page
+                      key={`page_${index + 1}`}
+                      pageNumber={index + 1}
+                      scale={scale}
+                      renderTextLayer={true}
+                      renderAnnotationLayer={true}
+                    />
+                  ))}
+                </Document>
+              ) : (
+                <PDFPlaceholder />
+              )}
+              {selectionBox && (
+                <div
+                  className="selection-box"
+                  style={{
+                    position: "absolute",
+                    left: `${selectionBox.x * scale}px`,
+                    top: `${selectionBox.y * scale}px`,
+                    width: `${selectionBox.width * scale}px`,
+                    height: `${selectionBox.height * scale}px`,
+                  }}
+                />
+              )}
+              {formFields.map((field, index) => (
+                <FormField
+                  key={`form-field-${index}`}
+                  {...field}
+                  fieldKey={field.key}
+                  onKeySet={(newKey) => handleKeySet(index, newKey)}
+                  onDelete={() => handleFieldDelete(index)}
+                  onEdit={() => handleFieldEdit(index)}
+                  scale={scale}
+                  isEditing={selectedField === index}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </main>
