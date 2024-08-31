@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./FormField.css";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { X } from "lucide-react";
 
 interface FormFieldProps {
   x: number;
@@ -46,48 +48,60 @@ const FormField: React.FC<FormFieldProps> = ({
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      onKeySet(localKey || fieldKey); // 如果 localKey 为空，使用原来的 fieldKey
+      onKeySet(localKey || fieldKey);
     }
   };
 
   const handleBlur = () => {
-    onKeySet(localKey || fieldKey); // 在失去焦点时也保存更改
+    onKeySet(localKey || fieldKey);
   };
 
   const handleDoubleClick = () => {
     onEdit();
   };
 
+  const scaledFontSize = Math.max(12, 12 * scale);
+
   return (
     <div
-      className={`form-field ${isEditing ? "editing" : ""} ${
-        fieldKey ? "set" : ""
-      }`}
+      className={`absolute border-2 ${
+        isEditing
+          ? "bg-purple-300 bg-opacity-50 border-purple-500"
+          : "bg-green-300 bg-opacity-50 border-green-500"
+      } flex flex-col justify-center items-center overflow-hidden shadow-md`}
       style={{
         left: `${x * scale}px`,
         top: `${y * scale}px`,
         width: `${width * scale}px`,
         height: `${height * scale}px`,
-        fontSize: `${Math.max(14, 14 / scale)}px`,
+        fontSize: `${scaledFontSize}px`,
       }}
       onDoubleClick={handleDoubleClick}
     >
-      <div className="delete-button" onClick={onDelete}>
-        ×
-      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-0 right-0 opacity-0 hover:opacity-100 transition-opacity"
+        onClick={onDelete}
+        style={{ transform: `scale(${scale})`, transformOrigin: "top right" }}
+      >
+        <X className="h-4 w-4" />
+      </Button>
       {isEditing ? (
-        <input
+        <Input
           ref={inputRef}
           type="text"
           value={localKey}
           onChange={handleKeyChange}
           onKeyDown={handleKeyPress}
           onBlur={handleBlur}
-          placeholder={fieldKey}
-          style={{ fontSize: `${Math.max(12, 12 / scale)}px` }}
+          className="w-full h-full text-center bg-transparent font-semibold text-black"
+          style={{ fontSize: `${scaledFontSize}px` }}
         />
       ) : (
-        <div className="field-key">{fieldKey}</div>
+        <div className="w-full h-full flex items-center justify-center font-semibold text-black">
+          {fieldKey}
+        </div>
       )}
     </div>
   );

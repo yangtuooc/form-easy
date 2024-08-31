@@ -1,36 +1,28 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import "./App.css";
 import FormField from "./components/FormField";
 import { useFormFields } from "./hooks/useFormFields";
-import { handleSaveAndExport as saveAndExportPDF } from "./utils/pdfUtils"; // 重命名导入的函数
+import { handleSaveAndExport as saveAndExportPDF } from "./utils/pdfUtils";
 import ControlPanel from "./components/ControlPanel";
 import FieldsList from "./components/FieldsList";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Moon, Sun, Laptop, FileText } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const PDFPlaceholder = () => (
-  <div className="pdf-placeholder">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="48"
-      height="48"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-      <polyline points="14 2 14 8 20 8"></polyline>
-      <line x1="16" y1="13" x2="8" y2="13"></line>
-      <line x1="16" y1="17" x2="8" y2="17"></line>
-      <polyline points="10 9 9 9 8 9"></polyline>
-    </svg>
-    <p>Select a PDF file to begin</p>
+  <div className="flex flex-col items-center justify-center w-full h-full bg-muted text-muted-foreground rounded-lg border-2 border-dashed">
+    <FileText className="w-16 h-16 mb-4" />
+    <p className="text-lg font-medium">Select a PDF to get started</p>
   </div>
 );
 
@@ -38,25 +30,57 @@ function App() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
   const [scale, setScale] = useState(1.5);
-  const [fileName, setFileName] = useState<string>("No file chosen");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [fileName, setFileName] = useState<string>("No file selected");
   const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const pdfContentRef = useRef<HTMLDivElement>(null);
+  const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const handlePageChange = useCallback((pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  }, []);
 
   useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
+    const options = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 0.5,
+    };
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(theme);
+    observerRef.current = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const pageNumber = Number(
+            entry.target.getAttribute("data-page-number")
+          );
+          handlePageChange(pageNumber);
+        }
+      });
+    }, options);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [handlePageChange]);
+
+  useEffect(() => {
+    if (observerRef.current) {
+      pageRefs.current.forEach((ref) => {
+        if (ref) {
+          observerRef.current?.observe(ref);
+        }
+      });
     }
-  }, [theme]);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [numPages]);
 
   const {
     formFields,
@@ -82,6 +106,7 @@ function App() {
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
+    setCurrentPage(1);
   };
 
   const handleSaveAndExport = () => {
@@ -89,7 +114,7 @@ function App() {
       alert("Please add at least one form field before exporting.");
       return;
     }
-    saveAndExportPDF(pdfFile, formFields); // 使用重命名后的函数
+    saveAndExportPDF(pdfFile, formFields);
   };
 
   const toggleTheme = () => {
@@ -97,135 +122,135 @@ function App() {
   };
 
   return (
-    <div className={`App ${isSelectingDisabled ? "no-select" : ""}`}>
-      <header className="App-header">
-        <h1>PDF Form Editor</h1>
-        <div className="header-controls">
-          <button
-            onClick={toggleTheme}
-            className="theme-toggle-btn"
-            aria-label="Toggle theme"
-          >
-            {theme === "light" ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="5" />
-                <line x1="12" y1="1" x2="12" y2="3" />
-                <line x1="12" y1="21" x2="12" y2="23" />
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                <line x1="1" y1="12" x2="3" y2="12" />
-                <line x1="21" y1="12" x2="23" y2="12" />
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-              </svg>
-            )}
-          </button>
-          <button
-            className="toggle-sidebar-btn"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          >
-            {isSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
-          </button>
-        </div>
+    <div className="bg-background h-screen flex flex-col">
+      <header className="flex items-center justify-between p-4 border-b">
+        <h1 className="text-2xl font-bold">PDF Form Editor</h1>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              {theme === "light" ? (
+                <Sun className="h-[1.2rem] w-[1.2rem]" />
+              ) : theme === "dark" ? (
+                <Moon className="h-[1.2rem] w-[1.2rem]" />
+              ) : (
+                <Laptop className="h-[1.2rem] w-[1.2rem]" />
+              )}
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setTheme("light")}>
+              <Sun className="mr-2 h-4 w-4" />
+              <span>Light</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme("dark")}>
+              <Moon className="mr-2 h-4 w-4" />
+              <span>Dark</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTheme("system")}>
+              <Laptop className="mr-2 h-4 w-4" />
+              <span>System</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </header>
-      <main className="App-main">
-        <div className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
-          <ControlPanel
-            fileName={fileName}
-            scale={scale}
-            setScale={setScale}
-            onFileChange={onFileChange}
-            onSaveAndExport={handleSaveAndExport}
-            onClearFields={clearAllFields}
-            hasFields={formFields.length > 0}
-          />
-          <div className="fields-list-wrapper">
+      <div className="flex flex-1 overflow-hidden">
+        <aside className="w-80 flex-shrink-0 border-r flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto">
+            <ControlPanel
+              fileName={fileName}
+              scale={scale}
+              setScale={setScale}
+              onFileChange={onFileChange}
+              onSaveAndExport={handleSaveAndExport}
+              onClearFields={clearAllFields}
+              hasFields={formFields.length > 0}
+            />
+            <Separator className="my-4" />
             <FieldsList
               fields={formFields}
               onEdit={handleFieldEdit}
               onDelete={handleFieldDelete}
             />
           </div>
-        </div>
-        <div className={`pdf-editor ${isSidebarOpen ? "" : "full-width"}`}>
-          <div className="pdf-container">
-            <div
-              ref={pdfContentRef}
-              className="pdf-content"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-            >
-              {pdfFile ? (
-                <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
-                  {Array.from(new Array(numPages), (_, index) => (
-                    <Page
-                      key={`page_${index + 1}`}
-                      pageNumber={index + 1}
+        </aside>
+        <main className="flex-1 overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-auto">
+            <div className="min-w-full inline-block p-4">
+              <div className="relative">
+                <div
+                  ref={pdfContentRef}
+                  className={`pdf-content relative cursor-crosshair ${
+                    isSelectingDisabled ? "select-none" : ""
+                  }`}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                >
+                  {pdfFile ? (
+                    <Document
+                      file={pdfFile}
+                      onLoadSuccess={onDocumentLoadSuccess}
+                      className="shadow-xl"
+                    >
+                      {Array.from(new Array(numPages), (_, index) => (
+                        <div
+                          key={`page_${index + 1}`}
+                          ref={(el) => (pageRefs.current[index] = el)}
+                          data-page-number={index + 1}
+                        >
+                          <Page
+                            pageNumber={index + 1}
+                            scale={scale}
+                            renderTextLayer={true}
+                            renderAnnotationLayer={true}
+                            className="mb-4"
+                          />
+                        </div>
+                      ))}
+                    </Document>
+                  ) : (
+                    <PDFPlaceholder />
+                  )}
+                  {selectionBox && (
+                    <div
+                      className="absolute border-2 border-blue-500 bg-blue-200 bg-opacity-40 pointer-events-none"
+                      style={{
+                        left: `${selectionBox.x * scale}px`,
+                        top: `${selectionBox.y * scale}px`,
+                        width: `${selectionBox.width * scale}px`,
+                        height: `${selectionBox.height * scale}px`,
+                      }}
+                    />
+                  )}
+                  {formFields.map((field, index) => (
+                    <FormField
+                      key={`form-field-${index}`}
+                      x={field.x}
+                      y={field.y}
+                      width={field.width}
+                      height={field.height}
+                      fieldKey={field.key}
+                      onKeySet={(newKey) => handleKeySet(index, newKey)}
+                      onDelete={() => handleFieldDelete(index)}
+                      onEdit={() => handleFieldEdit(index)}
                       scale={scale}
-                      renderTextLayer={true}
-                      renderAnnotationLayer={true}
+                      isEditing={selectedField === index}
                     />
                   ))}
-                </Document>
-              ) : (
-                <PDFPlaceholder />
-              )}
-              {selectionBox && (
-                <div
-                  className="selection-box"
-                  style={{
-                    position: "absolute",
-                    left: `${selectionBox.x * scale}px`,
-                    top: `${selectionBox.y * scale}px`,
-                    width: `${selectionBox.width * scale}px`,
-                    height: `${selectionBox.height * scale}px`,
-                  }}
-                />
-              )}
-              {formFields.map((field, index) => (
-                <FormField
-                  key={`form-field-${index}`}
-                  x={field.x}
-                  y={field.y}
-                  width={field.width}
-                  height={field.height}
-                  fieldKey={field.key}
-                  onKeySet={(newKey) => handleKeySet(index, newKey)}
-                  onDelete={() => handleFieldDelete(index)}
-                  onEdit={() => handleFieldEdit(index)}
-                  scale={scale}
-                  isEditing={selectedField === index}
-                />
-              ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+          {pdfFile && (
+            <div className="flex justify-center items-center p-2 border-t">
+              <span className="text-sm">
+                第 {currentPage} 页，共 {numPages} 页
+              </span>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 }
