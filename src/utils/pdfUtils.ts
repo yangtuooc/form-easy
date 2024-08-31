@@ -39,6 +39,7 @@ export async function handleSaveAndExport(
     // 设置字段属性
     textField.setFontSize(12);
     textField.setText(field.key); // 设置表单域的默认文本为 key
+    textField.enableReadOnly(); // 设置为只读
 
     // 使用 updateAppearances 方法来设置默认外观
     textField.updateAppearances(helveticaFont);
