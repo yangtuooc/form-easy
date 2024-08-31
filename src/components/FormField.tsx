@@ -26,11 +26,11 @@ const FormField: React.FC<FormFieldProps> = ({
   isEditing,
   fieldKey,
 }) => {
-  const [localKey, setLocalKey] = useState(fieldKey || ""); // 确保初始值是字符串
+  const [localKey, setLocalKey] = useState(fieldKey); // 确保初始值是字符串
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setLocalKey(fieldKey || "");
+    setLocalKey(fieldKey); // 确保初始值是字符串
   }, [fieldKey]);
 
   useEffect(() => {
@@ -79,11 +79,11 @@ const FormField: React.FC<FormFieldProps> = ({
           value={localKey}
           onChange={handleKeyChange}
           onKeyDown={handleKeyPress}
-          placeholder="Enter field key"
+          placeholder="Enter field name"
           style={{ fontSize: `${Math.max(12, 12 / scale)}px` }}
         />
       ) : (
-        <div className="field-key">{localKey ? `${localKey}` : "未设置"}</div>
+        <div className="field-key">{localKey || "Unnamed Field"}</div>
       )}
     </div>
   );

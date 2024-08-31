@@ -80,19 +80,20 @@ html {
 .sidebar {
   width: 300px;
   background-color: #f0f0f0;
+  transition: all 0.3s ease-in-out;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease-in-out;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  z-index: 10;
+  height: 100%;
+  flex-shrink: 0;
 }
 
 .sidebar.closed {
-  transform: translateX(-100%);
+  width: 0;
+  opacity: 0;
+}
+
+.fields-list-wrapper {
+  flex-grow: 1;
+  overflow: hidden;
 }
 
 .pdf-editor {
@@ -101,9 +102,8 @@ html {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  background-color: #e0e0e0;
-  transition: margin-left 0.3s ease-in-out;
-  margin-left: 300px;
+  padding: 20px;
+  transition: all 0.3s ease-in-out;
 }
 
 .pdf-editor.full-width {
@@ -113,7 +113,7 @@ html {
 .pdf-container {
   background-color: white;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  min-height: 100%;
+  display: inline-block;
 }
 
 .pdf-content {
@@ -126,6 +126,7 @@ html {
   height: 842px;
   background-color: #f0f0f0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   font-size: 18px;

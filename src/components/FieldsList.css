@@ -1,0 +1,83 @@
+.fields-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.fields-list-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1rem;
+  color: #495057;
+}
+
+.fields-list-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 1rem 1rem;
+}
+
+.no-fields-message {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.fields-list-items {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.field-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.field-item:hover {
+  background-color: #f1f3f5;
+}
+
+.field-name {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 0.5rem;
+}
+
+.field-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.field-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.field-action-btn:hover {
+  background-color: #e9ecef;
+}
+
+.edit-btn {
+  color: #28a745;
+}
+
+.delete-btn {
+  color: #dc3545;
+}

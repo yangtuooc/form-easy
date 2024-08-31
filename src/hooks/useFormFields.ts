@@ -85,7 +85,7 @@ export function useFormFields(
           y: Math.min(startPoint.y, y),
           width: width,
           height: height,
-          key: "",
+          key: `Field ${formFields.length + 1}`, // 给新字段一个默认的键值
         };
         setFormFields((prevFields) => [...prevFields, newField]);
         setSelectedField(formFields.length);
@@ -100,7 +100,7 @@ export function useFormFields(
   const handleKeySet = useCallback((index: number, key: string) => {
     setFormFields((prevFields) => {
       const updatedFields = prevFields.map((field, i) =>
-        i === index ? { ...field, key } : field
+        i === index ? { ...field, key: key || `Field ${i + 1}` } : field
       );
       return updatedFields;
     });
@@ -108,11 +108,26 @@ export function useFormFields(
   }, []);
 
   const handleFieldDelete = useCallback((index: number) => {
-    setFormFields((prevFields) => prevFields.filter((_, i) => i !== index));
+    setFormFields((prevFields) => {
+      const updatedFields = prevFields.filter((_, i) => i !== index);
+      // 重新编号剩余的字段
+      return updatedFields.map((field, i) => ({
+        ...field,
+        key: field.key.startsWith("Field ") ? `Field ${i + 1}` : field.key,
+      }));
+    });
     setSelectedField(null);
   }, []);
 
   const handleFieldEdit = useCallback((index: number) => {
+    setFormFields((prevFields) => {
+      return prevFields.map((field, i) => {
+        if (i === index) {
+          return { ...field, key: "" };
+        }
+        return field;
+      });
+    });
     setSelectedField(index);
   }, []);
 
