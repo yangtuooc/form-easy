@@ -54,6 +54,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   margin-right: 0.5rem;
+  color: #000000; /* 将字段名称颜色改为黑色 */
 }
 
 .field-actions {

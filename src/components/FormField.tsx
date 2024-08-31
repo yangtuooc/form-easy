@@ -11,7 +11,7 @@ interface FormFieldProps {
   onEdit: () => void;
   scale: number;
   isEditing: boolean;
-  fieldKey: string; // 重命名为 fieldKey
+  fieldKey: string;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -26,11 +26,11 @@ const FormField: React.FC<FormFieldProps> = ({
   isEditing,
   fieldKey,
 }) => {
-  const [localKey, setLocalKey] = useState(fieldKey); // 确保初始值是字符串
+  const [localKey, setLocalKey] = useState(fieldKey);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setLocalKey(fieldKey); // 确保初始值是字符串
+    setLocalKey(fieldKey);
   }, [fieldKey]);
 
   useEffect(() => {
@@ -45,10 +45,13 @@ const FormField: React.FC<FormFieldProps> = ({
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      e.preventDefault(); // 防止表单提交
-      onKeySet(localKey);
-      console.log("Enter pressed, setting key:", localKey); // 添加日志
+      e.preventDefault();
+      onKeySet(localKey || fieldKey); // 如果 localKey 为空，使用原来的 fieldKey
     }
+  };
+
+  const handleBlur = () => {
+    onKeySet(localKey || fieldKey); // 在失去焦点时也保存更改
   };
 
   const handleDoubleClick = () => {
@@ -58,7 +61,7 @@ const FormField: React.FC<FormFieldProps> = ({
   return (
     <div
       className={`form-field ${isEditing ? "editing" : ""} ${
-        localKey ? "set" : ""
+        fieldKey ? "set" : ""
       }`}
       style={{
         left: `${x * scale}px`,
@@ -79,11 +82,12 @@ const FormField: React.FC<FormFieldProps> = ({
           value={localKey}
           onChange={handleKeyChange}
           onKeyDown={handleKeyPress}
-          placeholder="Enter field name"
+          onBlur={handleBlur}
+          placeholder={fieldKey}
           style={{ fontSize: `${Math.max(12, 12 / scale)}px` }}
         />
       ) : (
-        <div className="field-key">{localKey || "Unnamed Field"}</div>
+        <div className="field-key">{fieldKey}</div>
       )}
     </div>
   );

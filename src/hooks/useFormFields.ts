@@ -100,7 +100,7 @@ export function useFormFields(
   const handleKeySet = useCallback((index: number, key: string) => {
     setFormFields((prevFields) => {
       const updatedFields = prevFields.map((field, i) =>
-        i === index ? { ...field, key: key || `Field ${i + 1}` } : field
+        i === index ? { ...field, key: key || field.key } : field
       );
       return updatedFields;
     });
@@ -120,14 +120,6 @@ export function useFormFields(
   }, []);
 
   const handleFieldEdit = useCallback((index: number) => {
-    setFormFields((prevFields) => {
-      return prevFields.map((field, i) => {
-        if (i === index) {
-          return { ...field, key: "" };
-        }
-        return field;
-      });
-    });
     setSelectedField(index);
   }, []);
 
