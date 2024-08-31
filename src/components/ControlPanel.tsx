@@ -72,7 +72,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       <div className="control-section">
         <h3>Actions</h3>
         <button
-          className="btn btn-secondary"
+          className="btn btn-export"
           onClick={onSaveAndExport}
           disabled={!fileName || fileName === "No file chosen" || !hasFields}
           title={!hasFields ? "Add at least one form field" : ""}

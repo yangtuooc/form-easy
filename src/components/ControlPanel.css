@@ -1,18 +1,21 @@
 .control-panel {
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-right: 1px solid #e9ecef;
+  padding: 1.5rem;
+  font-family: var(--font-sans);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 .control-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .control-section h3 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  color: #495057;
+  font-size: 0.875rem;
   font-weight: 600;
+  letter-spacing: -0.025em;
+  color: hsl(var(--foreground));
+  margin-bottom: 1rem;
+  text-transform: uppercase;
 }
 
 .file-input-wrapper {
@@ -34,7 +37,7 @@
 .file-name-display {
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: #6c757d;
+  color: hsl(var(--muted-foreground));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -47,51 +50,105 @@
 
 .scale-control input[type="range"] {
   flex-grow: 1;
-  margin-right: 0.5rem;
+  margin-right: 1rem;
+  -webkit-appearance: none;
+  background: hsl(var(--border));
+  height: 4px;
+  border-radius: 2px;
+}
+
+.scale-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: hsl(var(--primary));
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.scale-control input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-  transition: all 0.15s ease-in-out;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1.5rem;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
   cursor: pointer;
+  transition: all 0.2s ease;
   width: 100%;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.btn svg {
-  margin-right: 0.5rem;
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #007bff;
-  border: 1px solid #007bff;
-}
-
-.btn-secondary {
-  color: #fff;
-  background-color: #6c757d;
-  border: 1px solid #6c757d;
-}
-
-.btn-danger {
-  color: #fff;
-  background-color: #dc3545;
-  border: 1px solid #dc3545;
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .btn:disabled {
-  opacity: 0.65;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.btn:not(:disabled):hover {
-  opacity: 0.9;
+.btn-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: hsl(var(--primary) / 0.9);
+}
+
+.btn-secondary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: hsl(var(--primary) / 0.9);
+}
+
+.btn-danger {
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  border: none;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: hsl(var(--destructive) / 0.9);
+}
+
+.btn svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 0.5rem;
+}
+
+.btn-export {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+}
+
+.btn-export:hover:not(:disabled) {
+  background-color: hsl(var(--primary) / 0.9);
 }

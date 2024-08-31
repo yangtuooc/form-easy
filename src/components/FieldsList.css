@@ -1,26 +1,23 @@
 .fields-list {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e9ecef;
+  padding: 1.5rem;
+  font-family: var(--font-sans);
 }
 
 .fields-list-title {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  margin: 1rem;
-  color: #495057;
+  letter-spacing: -0.025em;
+  color: hsl(var(--foreground));
+  margin-bottom: 1rem;
+  text-transform: uppercase;
 }
 
 .fields-list-container {
-  flex-grow: 1;
   overflow-y: auto;
-  padding: 0 1rem 1rem;
 }
 
 .no-fields-message {
-  color: #6c757d;
+  color: hsl(var(--muted-foreground));
   font-style: italic;
   text-align: center;
   padding: 1rem 0;
@@ -36,49 +33,67 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem;
-  background-color: #fff;
-  border: 1px solid #e9ecef;
+  padding: 0.625rem; /* 减小内边距 */
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  margin-bottom: 0.375rem; /* 稍微减小项目之间的间距 */
+  transition: all 0.2s ease;
   border-radius: 0.25rem;
-  margin-bottom: 0.5rem;
-  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .field-item:hover {
-  background-color: #f1f3f5;
+  background-color: hsl(var(--accent));
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .field-name {
   flex-grow: 1;
+  font-size: 0.8125rem; /* 稍微减小字体大小 */
+  font-weight: 500;
+  color: hsl(var(--foreground));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-right: 0.5rem;
-  color: #000000; /* 将字段名称颜色改为黑色 */
+  margin-right: 0.75rem; /* 稍微减小右边距 */
 }
 
 .field-actions {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.375rem; /* 减小按钮之间的间距 */
 }
 
 .field-action-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0.1875rem; /* 减小内边距 */
+  transition: all 0.2s ease;
   border-radius: 0.25rem;
-  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .field-action-btn:hover {
-  background-color: #e9ecef;
+  background-color: hsl(var(--accent));
+  transform: translateY(-1px);
+}
+
+.field-action-btn:active {
+  transform: translateY(0);
 }
 
 .edit-btn {
-  color: #28a745;
+  color: hsl(var(--primary));
 }
 
 .delete-btn {
-  color: #dc3545;
+  color: hsl(var(--destructive));
+}
+
+.field-action-btn svg {
+  width: 14px; /* 减小图标大小 */
+  height: 14px;
 }

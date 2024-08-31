@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
@@ -40,7 +40,23 @@ function App() {
   const [scale, setScale] = useState(1.5);
   const [fileName, setFileName] = useState<string>("No file chosen");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
   const pdfContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+      root.classList.add(systemTheme);
+    } else {
+      root.classList.add(theme);
+    }
+  }, [theme]);
 
   const {
     formFields,
@@ -76,20 +92,65 @@ function App() {
     saveAndExportPDF(pdfFile, formFields); // 使用重命名后的函数
   };
 
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+  };
+
   return (
     <div className={`App ${isSelectingDisabled ? "no-select" : ""}`}>
       <header className="App-header">
         <h1>PDF Form Editor</h1>
-        <button
-          className="toggle-sidebar-btn"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        >
-          {isSidebarOpen ? (
-            <span>Hide Sidebar &laquo;</span>
-          ) : (
-            <span>Show Sidebar &raquo;</span>
-          )}
-        </button>
+        <div className="header-controls">
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle-btn"
+            aria-label="Toggle theme"
+          >
+            {theme === "light" ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            )}
+          </button>
+          <button
+            className="toggle-sidebar-btn"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
+          </button>
+        </div>
       </header>
       <main className="App-main">
         <div className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
