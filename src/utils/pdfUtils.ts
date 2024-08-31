@@ -24,7 +24,7 @@ export async function handleSaveAndExport(
 
   formFields.forEach((field) => {
     const page = pages[0]; // 假设所有字段都在第一页，如果不是，需要确定正确的页面
-    const { width, height } = page.getSize();
+    const { height } = page.getSize();
 
     const textField = form.createTextField(field.key);
     textField.addToPage(page, {
