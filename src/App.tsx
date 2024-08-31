@@ -149,7 +149,10 @@ function App() {
               {formFields.map((field, index) => (
                 <FormField
                   key={`form-field-${index}`}
-                  {...field}
+                  x={field.x}
+                  y={field.y}
+                  width={field.width}
+                  height={field.height}
                   fieldKey={field.key}
                   onKeySet={(newKey) => handleKeySet(index, newKey)}
                   onDelete={() => handleFieldDelete(index)}
