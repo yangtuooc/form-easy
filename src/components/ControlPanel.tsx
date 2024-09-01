@@ -1,8 +1,8 @@
 import React from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
-import { Upload, Download, Trash2 } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
+import FileUpload from "./FileUpload";
 
 interface ControlPanelProps {
   fileName: string;
@@ -29,30 +29,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
   return (
     <div className="space-y-4 p-4">
-      <div>
-        <h3 className="text-sm font-medium mb-2">文件</h3>
-        <div className="flex items-center space-x-2 mb-2">
-          <Button variant="outline" className="w-full" asChild>
-            <label htmlFor="pdf-upload">
-              <Upload className="mr-2 h-4 w-4" />
-              上传 PDF
-            </label>
-          </Button>
-          <Input
-            id="pdf-upload"
-            type="file"
-            onChange={onFileChange}
-            accept=".pdf"
-            className="hidden"
-          />
-        </div>
-        <div
-          className="text-xs text-muted-foreground truncate"
-          title={fileName}
-        >
-          {fileName}
-        </div>
-      </div>
+      <FileUpload onFileChange={onFileChange} fileName={fileName} />
 
       <div>
         <h3 className="text-sm font-medium mb-2">缩放</h3>
