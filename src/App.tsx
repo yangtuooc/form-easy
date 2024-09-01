@@ -56,28 +56,32 @@ function App() {
 
   useEffect(() => {
     const options = {
-      root: null,
-      rootMargin: "0px",
-      threshold: 0.5,
+      root: null, // 使用视口作为根
+      rootMargin: "-50% 0px", // 当页面在视口中间时触发
+      threshold: 0,
     };
 
-    observerRef.current = new IntersectionObserver((entries) => {
+    const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const pageNumber = Number(
             entry.target.getAttribute("data-page-number")
           );
-          handlePageChange(pageNumber);
+          if (pageNumber && pageNumber !== currentPage) {
+            handlePageChange(pageNumber);
+          }
         }
       });
     }, options);
 
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+    pageRefs.current.forEach((ref) => {
+      if (ref) {
+        observer.observe(ref);
       }
-    };
-  }, [handlePageChange]);
+    });
+
+    return () => observer.disconnect();
+  }, [handlePageChange, currentPage, numPages]);
 
   useEffect(() => {
     if (observerRef.current) {
@@ -211,7 +215,7 @@ function App() {
             </div>
           </aside>
           <main className="flex-1 overflow-hidden flex flex-col">
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-auto" id="pdf-container">
               <div className="min-w-full inline-block p-4">
                 <div
                   ref={pdfContentRef}
