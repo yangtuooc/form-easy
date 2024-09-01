@@ -263,21 +263,30 @@ function App() {
                       }}
                     />
                   )}
-                  {formFields.map((field, index) => (
-                    <FormField
-                      key={`form-field-${index}`}
-                      x={field.x}
-                      y={field.y}
-                      width={field.width}
-                      height={field.height}
-                      fieldKey={field.key}
-                      onKeySet={(newKey) => handleKeySet(index, newKey)}
-                      onDelete={() => handleFieldDelete(index)}
-                      onEdit={() => handleFieldEdit(index)}
-                      scale={scale}
-                      isEditing={selectedField === index}
-                    />
-                  ))}
+                  {formFields
+                    .filter((field) => field.page === currentPage) // 只渲染当前页的字段
+                    .map((field) => {
+                      const originalIndex = formFields.findIndex(
+                        (f) => f.key === field.key
+                      );
+                      return (
+                        <FormField
+                          key={`form-field-${field.key}`}
+                          x={field.x}
+                          y={field.y}
+                          width={field.width}
+                          height={field.height}
+                          fieldKey={field.key}
+                          onKeySet={(newKey) =>
+                            handleKeySet(originalIndex, newKey)
+                          }
+                          onDelete={() => handleFieldDelete(originalIndex)}
+                          onEdit={() => handleFieldEdit(originalIndex)}
+                          scale={scale}
+                          isEditing={selectedField === originalIndex}
+                        />
+                      );
+                    })}
                 </div>
               </div>
             </div>
