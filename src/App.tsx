@@ -22,11 +22,15 @@ import {
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
+interface ThemeContextType {
+  theme: "light" | "dark" | "system";
+  setTheme: (theme: "light" | "dark" | "system") => void;
+}
+
 // 创建主题 context 并导出
-export const ThemeContext = React.createContext({
-  theme: "system" as "light" | "dark" | "system",
-  setTheme: (theme: "light" | "dark" | "system") => {},
-});
+export const ThemeContext = React.createContext<ThemeContextType | undefined>(
+  undefined
+);
 
 const PDFPlaceholder = () => (
   <div className="flex flex-col items-center justify-center w-full h-full bg-muted text-muted-foreground rounded-lg border-2 border-dashed">
