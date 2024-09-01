@@ -12,8 +12,6 @@ export async function handleSaveAndExport(
   const form = pdfDoc.getForm();
   const pages = pdfDoc.getPages();
 
-  console.log(pages);
-
   // 加载默认字体
   const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
