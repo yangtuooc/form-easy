@@ -2,14 +2,17 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import FormField from "./components/FormField";
-import { useFormFields } from "./hooks/useFormFields";
-import { handleSaveAndExport as saveAndExportPDF } from "./utils/pdfUtils";
-import ControlPanel from "./components/ControlPanel";
-import FieldsList from "./components/FieldsList";
+import FormField from "@/components/FormField";
+import { useFormFields } from "@/hooks/useFormFields";
+import { handleSaveAndExport as saveAndExportPDF } from "@/utils/pdfUtils";
+import ControlPanel, { ControlPanelPlugin } from "@/components/ControlPanel";
+import FieldsList from "@/components/FieldsList";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Moon, Sun, Laptop, FileText } from "lucide-react";
+import FileUpload from "@/components/FileUpload";
+import ScaleControl from "@/components/ScaleControl";
+import OperationsControl from "@/components/OperationsControl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -138,6 +141,25 @@ function App() {
     }
   }, [theme]);
 
+  const plugins: ControlPanelPlugin[] = [
+    {
+      component: FileUpload,
+      props: { onFileChange: onFileChange, fileName: fileName },
+    },
+    {
+      component: ScaleControl,
+      props: { scale, setScale },
+    },
+    {
+      component: OperationsControl,
+      props: {
+        onSaveAndExport: handleSaveAndExport,
+        onClearFields: clearAllFields,
+        isDisabled: !pdfFile || formFields.length === 0,
+      },
+    },
+  ];
+
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
       <div className="bg-background h-screen flex flex-col">
@@ -175,15 +197,7 @@ function App() {
         <div className="flex flex-1 overflow-hidden">
           <aside className="w-80 flex-shrink-0 border-r flex flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto">
-              <ControlPanel
-                fileName={fileName}
-                scale={scale}
-                setScale={setScale}
-                onFileChange={onFileChange}
-                onSaveAndExport={handleSaveAndExport}
-                onClearFields={clearAllFields}
-                hasFields={formFields.length > 0}
-              />
+              <ControlPanel plugins={plugins} />
               <Separator className="my-4" />
               <FieldsList
                 fields={formFields}
