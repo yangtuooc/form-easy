@@ -123,7 +123,7 @@ function App() {
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
-    setCurrentPage(1); // 确保在文档加载成功后将当前页设置为第一页
+    setCurrentPage(1);
   };
 
   const handleSaveAndExport = () => {
@@ -167,6 +167,16 @@ function App() {
       },
     },
   ];
+
+  const goToPreviousPage = () => {
+    setCurrentPage((prevPage) => (prevPage > 1 ? prevPage - 1 : prevPage));
+  };
+
+  const goToNextPage = () => {
+    setCurrentPage((prevPage) =>
+      prevPage < numPages ? prevPage + 1 : prevPage
+    );
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
@@ -232,21 +242,12 @@ function App() {
                       onLoadSuccess={onDocumentLoadSuccess}
                       className="shadow-xl"
                     >
-                      {Array.from(new Array(numPages), (_, index) => (
-                        <div
-                          key={`page_${index + 1}`}
-                          ref={(el) => (pageRefs.current[index] = el)}
-                          data-page-number={index + 1}
-                        >
-                          <Page
-                            pageNumber={index + 1}
-                            scale={scale}
-                            renderTextLayer={true}
-                            renderAnnotationLayer={true}
-                            className="mb-4"
-                          />
-                        </div>
-                      ))}
+                      <Page
+                        pageNumber={currentPage}
+                        scale={scale}
+                        renderTextLayer={true}
+                        renderAnnotationLayer={true}
+                      />
                     </Document>
                   ) : (
                     <PDFPlaceholder />
@@ -281,10 +282,19 @@ function App() {
               </div>
             </div>
             {pdfFile && (
-              <div className="flex justify-center items-center p-2 border-t">
+              <div className="flex justify-between items-center p-2 border-t">
+                <Button onClick={goToPreviousPage} disabled={currentPage <= 1}>
+                  上一页
+                </Button>
                 <span className="text-sm">
                   第 {currentPage} 页，共 {numPages} 页
                 </span>
+                <Button
+                  onClick={goToNextPage}
+                  disabled={currentPage >= numPages}
+                >
+                  下一页
+                </Button>
               </div>
             )}
           </main>
