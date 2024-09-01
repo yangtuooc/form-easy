@@ -1,16 +1,9 @@
+import { FormFieldType } from "@/types";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-
-interface FormField {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  key: string;
-}
 
 export async function handleSaveAndExport(
   pdfFile: File | null,
-  formFields: FormField[]
+  formFields: FormFieldType[]
 ) {
   if (!pdfFile) return;
 
@@ -19,11 +12,13 @@ export async function handleSaveAndExport(
   const form = pdfDoc.getForm();
   const pages = pdfDoc.getPages();
 
+  console.log(pages);
+
   // 加载默认字体
   const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   formFields.forEach((field) => {
-    const page = pages[0]; // 假设所有字段都在第一页，如果不是，需要确定正确的页面
+    const page = pages[field.page - 1];
     const { height } = page.getSize();
 
     const textField = form.createTextField(field.key);
@@ -40,8 +35,6 @@ export async function handleSaveAndExport(
     textField.setFontSize(12);
     textField.setText(field.key); // 设置表单域的默认文本为 key
     textField.enableReadOnly(); // 设置为只读
-
-    // 使用 updateAppearances 方法来设置默认外观
     textField.updateAppearances(helveticaFont);
   });
 
