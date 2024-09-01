@@ -146,7 +146,7 @@ export function useFormFields(
   );
 
   // 新增：批量更新表单字段
-  const updateAllFields = useCallback((updatedFields: FormField[]) => {
+  const updateAllFields = useCallback((updatedFields: FormFieldType[]) => {
     setFormFields(updatedFields);
   }, []);
 
