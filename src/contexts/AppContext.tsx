@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from "react";
-import { FormField } from "../types";
+import { FormField } from "@/types";
 
 interface AppContextType {
   pdfFile: File | ArrayBuffer | null;
