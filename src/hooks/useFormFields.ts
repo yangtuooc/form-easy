@@ -1,3 +1,4 @@
+import { FormFieldType } from "@/types";
 import { useState, useCallback, RefObject, useEffect } from "react";
 
 interface FormField {
@@ -17,9 +18,10 @@ interface SelectionBox {
 
 export function useFormFields(
   scale: number,
-  pdfContentRef: RefObject<HTMLDivElement>
+  pdfContentRef: RefObject<HTMLDivElement>,
+  currentPage: number // 添加 currentPage 参数
 ) {
-  const [formFields, setFormFields] = useState<FormField[]>([]);
+  const [formFields, setFormFields] = useState<FormFieldType[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
     null
@@ -85,7 +87,8 @@ export function useFormFields(
           y: Math.min(startPoint.y, y),
           width: width,
           height: height,
-          key: `Field ${formFields.length + 1}`, // 给新字段一个默认的键值
+          key: `Field ${formFields.length + 1}`,
+          page: currentPage, // 添加当前页码
         };
         setFormFields((prevFields) => [...prevFields, newField]);
         setSelectedField(formFields.length);
@@ -94,7 +97,14 @@ export function useFormFields(
       setStartPoint(null);
       setIsSelectingDisabled(false);
     },
-    [isDrawing, startPoint, scale, formFields.length, pdfContentRef]
+    [
+      isDrawing,
+      startPoint,
+      scale,
+      formFields.length,
+      pdfContentRef,
+      currentPage,
+    ] // 添加 currentPage 依赖
   );
 
   const handleKeySet = useCallback((index: number, key: string) => {

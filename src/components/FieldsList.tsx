@@ -1,9 +1,10 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { Pencil, Trash } from "lucide-react";
+import { FormFieldType } from "@/types"; // 导入 FormField 类型
 
 interface FieldsListProps {
-  fields: Array<{ key: string }>;
+  fields: FormFieldType[]; // 使用 FormField 类型
   onEdit: (index: number) => void;
   onDelete: (index: number) => void;
 }
@@ -28,12 +29,17 @@ const FieldsList: React.FC<FieldsListProps> = ({
                 key={index}
                 className="flex items-center justify-between p-2 bg-muted rounded-md text-sm"
               >
-                <span
-                  className="truncate"
-                  title={field.key || `字段 ${index + 1}`}
-                >
-                  {field.key || `字段 ${index + 1}`}
-                </span>
+                <div className="flex items-center space-x-2">
+                  <span
+                    className="truncate"
+                    title={field.key || `字段 ${index + 1}`}
+                  >
+                    {field.key || `字段 ${index + 1}`}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    (第 {field.page} 页)
+                  </span>
+                </div>
                 <div className="flex space-x-1">
                   <Button
                     size="icon"

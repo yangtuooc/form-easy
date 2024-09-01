@@ -107,7 +107,7 @@ function App() {
     handleFieldDelete,
     handleFieldEdit,
     clearAllFields,
-  } = useFormFields(scale, pdfContentRef);
+  } = useFormFields(scale, pdfContentRef, currentPage); // 传入 currentPage
 
   const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
